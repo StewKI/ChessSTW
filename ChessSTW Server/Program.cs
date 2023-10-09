@@ -12,10 +12,9 @@ namespace ChessSTW_Server
 {
     class Program
     {
-        static ServerLogic server = new ServerLogic();
-
         static async Task Main(string[] args)
         {
+            var server = new ServerLogic();
             await server.StartAsync();
         }
     }
