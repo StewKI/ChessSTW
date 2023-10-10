@@ -23,3 +23,5 @@ Contains all the logic for server, which includes managing connections and disco
 This is a WinForms project for a desktop client of the game.
 ### ChessSTW Server
 This is just a console project for starting the server.
+### ChessSTW Web
+This is a Blazor server project for a web client of the game.

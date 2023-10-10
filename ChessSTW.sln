@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessSTW Server", "ChessSTW
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLibrary", "ServerLibrary\ServerLibrary.csproj", "{66BF2832-2E4C-4F36-90D0-2ED35C2A2D3B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessSTW Web", "ChessSTW Web\ChessSTW Web.csproj", "{3B5D9E15-71E4-4ED9-99B6-E613EB9A5A1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{66BF2832-2E4C-4F36-90D0-2ED35C2A2D3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66BF2832-2E4C-4F36-90D0-2ED35C2A2D3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66BF2832-2E4C-4F36-90D0-2ED35C2A2D3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B5D9E15-71E4-4ED9-99B6-E613EB9A5A1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B5D9E15-71E4-4ED9-99B6-E613EB9A5A1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B5D9E15-71E4-4ED9-99B6-E613EB9A5A1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B5D9E15-71E4-4ED9-99B6-E613EB9A5A1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

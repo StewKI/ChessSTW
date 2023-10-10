@@ -1,0 +1,49 @@
+﻿@page "/"
+@using ChessLibrary;
+
+<div class="game-container">
+    <div class="grid-container">
+        @for (int i = 0; i < Rows; i++)
+        {
+            @for (int j = 0; j < Columns; j++)
+            {
+                int y = i;
+                int x = j;
+
+                <div class="grid-item noselect @FieldColorClass(i, j)" @onclick="(() => Click(y, x))">
+                    @Chess.PieceToString(game.pieces[i, j])
+                </div>
+            }
+        }
+    </div>
+</div>
+
+
+@code {
+    private const int Rows = 8;
+    private const int Columns = 8;
+
+    private Chess game = new Chess(() => 0);
+
+    string FieldColorClass(int i, int j)
+    {
+        string r;
+        if ((i + j) % 2 == 0)
+        {
+            r = "white-field";
+        }
+        else
+        {
+            r = "black-field";
+        }
+        return r;
+    }
+
+    void Click(int y, int x)
+    {
+        game.Click(y, x);
+        Console.WriteLine($"Button {y},{x} clicked.");
+        
+    }
+
+}
