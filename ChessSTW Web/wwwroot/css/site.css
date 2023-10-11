@@ -56,6 +56,13 @@ body {
     font-size: 44px;
 }
 
+.inner-border {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    border: 0.2vh ridge #2e1b0b;
+}
+
 .white-field {
     background-color: rgb(245, 230, 180);
 }
@@ -64,10 +71,36 @@ body {
     background-color: rgb(105, 76, 43);
 }
 
-.game-container {
+.selected-field {
+    background-color: cadetblue;
+}
+
+.attacked-field {
+    background-color: red;
+}
+
+.valid-field {
+    background-color: black;
+}
+
+.circle-in-field {
+    background-color : rgb(0, 0, 0, 0,00);
+    position: relative;
+    border-radius: 50%;
+    width: 30%;
+    height: 30%;
+    left: 35%;
+    top: 35%;
+    pointer-events: none;
+}
+
+.centered-content {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.game-container {
     height: 100vh;
     margin: 0;
 }

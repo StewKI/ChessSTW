@@ -1,7 +1,7 @@
 ﻿@page "/"
 @using ChessLibrary;
 
-<div class="game-container">
+<div class="game-container centered-content">
     <div class="grid-container">
         @for (int i = 0; i < Rows; i++)
         {
@@ -10,8 +10,10 @@
                 int y = i;
                 int x = j;
 
-                <div class="grid-item noselect @FieldColorClass(i, j)" @onclick="(() => Click(y, x))">
+                <div class="grid-item noselect @ClassFieldColor(i, j)" @onclick="(() => Click(y, x))">
                     @Chess.PieceToString(game.pieces[i, j])
+
+                    <div class="circle-in-field @ClassValidField(i, j)" ></div>
                 </div>
             }
         }
@@ -25,16 +27,38 @@
 
     private Chess game = new Chess(() => 0);
 
-    string FieldColorClass(int i, int j)
+    string ClassFieldColor(int i, int j)
     {
         string r;
-        if ((i + j) % 2 == 0)
+        if (i == game.selectedPos.y && j == game.selectedPos.x)
         {
-            r = "white-field";
+            r = "selected-field";
         }
-        else
+        else if(game.validFields[i, j] && game.pieces[i, j] != Piece.Empty)
         {
-            r = "black-field";
+            r = "attacked-field";
+        }
+        else 
+        {
+            if ((i + j) % 2 == 1)
+            {
+                r = "black-field";
+            }
+            else
+            {
+                r = "white-field";
+            }
+        }
+        return r;
+    }
+
+    string ClassValidField(int i, int j)
+    {
+        string r = "";
+        if (game.validFields[i, j] &&
+            game.pieces[i, j] == Piece.Empty)
+        {
+            r = "valid-field";
         }
         return r;
     }
@@ -42,8 +66,8 @@
     void Click(int y, int x)
     {
         game.Click(y, x);
-        Console.WriteLine($"Button {y},{x} clicked.");
-        
+        Console.WriteLine($"clicked {y},{x}");
+        InvokeAsync(StateHasChanged);
     }
 
 }
