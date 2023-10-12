@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChessLibrary\ChessLibrary.csproj" />
+    <ProjectReference Include="..\NetworkLibrary\NetworkLibrary.csproj" />
   </ItemGroup>
 
 </Project>

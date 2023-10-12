@@ -95,12 +95,12 @@ body {
 }
 
 .centered-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .game-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
     height: 100vh;
     margin: 0;
 }

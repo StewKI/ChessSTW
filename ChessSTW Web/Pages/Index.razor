@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using ChessLibrary;
+@using NetworkLibrary;
 
 <div class="game-container centered-content">
     <div class="grid-container">
@@ -18,10 +19,130 @@
             }
         }
     </div>
+
+    <div>
+        <h1>@TextInfo</h1>
+        <hr />
+        <h2>Start new online game:</h2>
+        <form>
+            <div class="form-group">
+                <label for="ipValue">IP:</label>
+                <input type="text" id="ipValue" @bind="ipValue" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="portValue">Port:</label>
+                <input type="text" id="portValue" @bind="portValue" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" @bind="username" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label>Select a value:</label>
+                @foreach (var option in valueOptions)
+                {
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" id="@option" name="value" @bind="selectedValue" />
+                        <label class="form-check-label" for="@option">@option</label>
+                    </div>
+                }
+            </div>
+
+            <button type="button" class="btn btn-primary" @onclick="ProcessInput">Accept</button>
+        </form>
+
+    </div>
 </div>
 
 
 @code {
+
+    //input
+    private string username = "";
+    private string selectedValue = "Random";
+    private string ipValue;
+    private string portValue;
+    private string[] valueOptions = { "Random", "White", "Black" };
+
+    private string TextInfo = "Local game";
+
+    private async Task ProcessInput()
+    {
+        // Process the input data here, for example, display it in an alert.
+        var message = $"Username: {username}, Selected Value: {selectedValue}";
+
+        CColor? color = null;
+        switch (selectedValue)
+        {
+            case "White":
+                color = CColor.White;
+                break;
+            case "Black":
+                color = CColor.Black;
+                break;
+        }
+        ChessOnline onlineGame = new ChessOnline(() => 0 /*TODO PROMOTE*/, (Chess chess) => InvokeAsync(StateHasChanged), (string a) => { }, color, username, "");
+
+        TextInfo = "Connecting...";
+        string IP = ipValue;
+        int Port = int.Parse(portValue);
+        if (await onlineGame.TryConnectAsync(IP, Port))
+        {
+            TextInfo = "Connected. Waiting for response...";
+
+            _ = Task.Run(() => WaitForResponse(onlineGame));
+
+        }
+        else
+        {
+            TextInfo = "Offline game";
+        }
+    }
+
+    private void WaitForResponse(ChessOnline onlineGame)
+    {
+        onlineGame.serverResponedEvent.WaitOne();
+        bool done = false;
+
+        while (!done)
+        {
+            switch (onlineGame.serverResponse)
+            {
+                case "welcome":
+
+                    TextInfo = $"Opponent: {onlineGame.opponUsername}";
+                    //rotateTable = onlineGame.myColor == CColor.Black;
+
+                    if (game is ChessOnline)
+                    {
+                        _ = ((ChessOnline)game).Disconnect();
+                    }
+                    game = onlineGame;
+                    InvokeAsync(StateHasChanged);
+                    done = true;
+
+                    break;
+
+                case "waiting":
+
+                    TextInfo = "Waiting for opponent...";
+
+                    break;
+
+                case "username":
+
+                    TextInfo = "Offline game";
+                    //MessageBox.Show("Username already taken!", "Username", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    done = true;
+
+                    break;
+            }
+        }
+    }
+
+
+    //game
     private const int Rows = 8;
     private const int Columns = 8;
 
