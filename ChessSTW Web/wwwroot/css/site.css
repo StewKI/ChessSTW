@@ -40,59 +40,6 @@ body {
     margin: 0;
 }
 
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(8, var(--field-size)); 
-    grid-gap: 0px; 
-    border: 0.5vh ridge #2e1b0b;
-}
-
-.grid-item {
-    width: var(--field-size);
-    height: var(--field-size);
-    border: 0px solid #000;
-    text-align: center;
-    line-height: var(--field-size);
-    font-size: 44px;
-}
-
-.inner-border {
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    border: 0.2vh ridge #2e1b0b;
-}
-
-.white-field {
-    background-color: rgb(245, 230, 180);
-}
-
-.black-field {
-    background-color: rgb(105, 76, 43);
-}
-
-.selected-field {
-    background-color: cadetblue;
-}
-
-.attacked-field {
-    background-color: red;
-}
-
-.valid-field {
-    background-color: black;
-}
-
-.circle-in-field {
-    background-color : rgb(0, 0, 0, 0,00);
-    position: relative;
-    border-radius: 50%;
-    width: 30%;
-    height: 30%;
-    left: 35%;
-    top: 35%;
-    pointer-events: none;
-}
 
 .centered-content {
 }
@@ -103,14 +50,4 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-}
-
-.noselect {
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Old versions of Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome, Edge, Opera and Firefox */
 }
