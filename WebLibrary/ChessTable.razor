@@ -23,6 +23,8 @@
 
     [Parameter]
     public Chess game { get; set; }
+    [Parameter]
+    public string FieldSize { get; set; }
 
 
     string ClassFieldColor(int i, int j)
@@ -70,9 +72,16 @@
 }
 
 <style>
+
+    
+    :root {
+        --field-size: @FieldSize;
+    }
+
     .grid-container {
         display: grid;
-        grid-template-columns: repeat(8, var(--field-size)); 
+        grid-template-columns: repeat(8, var(--field-size));
+        grid-template-rows: repeat(8, var(--field-size));
         grid-gap: 0px; 
         border: 0.5vh ridge #2e1b0b;
     }
@@ -83,7 +92,7 @@
         border: 0px solid #000;
         text-align: center;
         line-height: var(--field-size);
-        font-size: 44px;
+        font-size: 30px;
     }
     
     .inner-border {

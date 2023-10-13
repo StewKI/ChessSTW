@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessSTW Web", "ChessSTW We
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebLibrary", "WebLibrary\WebLibrary.csproj", "{A480DC2D-3D9A-4CB5-888C-B231D90064C7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessSTW Mobile", "ChessSTW Mobile\ChessSTW Mobile.csproj", "{97CE9CDF-7F1E-42F2-A966-13FEA0CC6B73}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,12 @@ Global
 		{A480DC2D-3D9A-4CB5-888C-B231D90064C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A480DC2D-3D9A-4CB5-888C-B231D90064C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A480DC2D-3D9A-4CB5-888C-B231D90064C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97CE9CDF-7F1E-42F2-A966-13FEA0CC6B73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97CE9CDF-7F1E-42F2-A966-13FEA0CC6B73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97CE9CDF-7F1E-42F2-A966-13FEA0CC6B73}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{97CE9CDF-7F1E-42F2-A966-13FEA0CC6B73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97CE9CDF-7F1E-42F2-A966-13FEA0CC6B73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97CE9CDF-7F1E-42F2-A966-13FEA0CC6B73}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

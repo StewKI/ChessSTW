@@ -1,0 +1,14 @@
+﻿@page "/"
+@using ChessLibrary;
+@inject Chess chess;
+
+<div>
+
+	<WebLibrary.ChessTable game="@chess" FieldSize="10.6vw"/>
+	<WebLibrary.OnlineChessDialog game="@chess" ipValue="192.168.8.197" portValue="6969" />
+
+</div>
+
+@code {
+	public Chess chessGame = new Chess(() => 0);
+}
