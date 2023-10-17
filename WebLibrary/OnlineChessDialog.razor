@@ -1,5 +1,7 @@
 ﻿@using ChessLibrary;
 @using NetworkLibrary;
+@using NetworkLibrary.Connections;
+@using System.Net.WebSockets;
 
 <div>
     <h1>@TextInfo</h1>
@@ -7,12 +9,8 @@
     <h2>Start new online game:</h2>
     <form>
         <div class="form-group">
-            <label for="ipValue">IP:</label>
-            <input type="text" id="ipValue" @bind="ipValue" class="form-control" />
-        </div>
-        <div class="form-group">
-            <label for="portValue">Port:</label>
-            <input type="text" id="portValue" @bind="portValue" class="form-control" />
+            <label for="url">URL:</label>
+            <input type="text" id="url" @bind="url" class="form-control" />
         </div>
         <div class="form-group">
             <label for="username">Username:</label>
@@ -39,11 +37,12 @@
 @code {
 
     [Parameter]
-    public Chess game { get; set; }
+    public Chess? game { get; set; }
     [Parameter]
-    public string ipValue { get; set; }
+    public string url { get; set; }
+
     [Parameter]
-    public string portValue { get; set; }
+    public EventCallback<Chess> gameChanged { get; set; }
 
     private string username = "";
     private string selectedValue = "Random";
@@ -69,28 +68,34 @@
         ChessOnline onlineGame = new ChessOnline(() => 0 /*TODO PROMOTE*/, (Chess chess) => InvokeAsync(StateHasChanged), (string a) => { }, color, username, "");
 
         TextInfo = "Connecting...";
-        string IP = ipValue;
-        int Port = int.Parse(portValue);
-        if (await onlineGame.TryConnectAsync(IP, Port))
-        {
-            TextInfo = "Connected. Waiting for response...";
 
-            _ = Task.Run(() => WaitForResponse(onlineGame));
-
-        }
-        else
+        using (ClientWebSocket client = new ClientWebSocket())
         {
-            TextInfo = "Offline game";
+            Uri serverUri = new Uri(url); //   "ws://localhost:6970"
+
+            try
+            {
+                await client.ConnectAsync(serverUri, CancellationToken.None);
+                onlineGame.Connect(new WebSocketConnection(client));
+                TextInfo = "Connected. Waiting for response...";
+                _ = WaitForResponse(onlineGame);
+            }
+            catch (Exception)
+            {
+                //TODO: alert about error
+                TextInfo = "Offline game";
+            }
         }
+        InvokeAsync(StateHasChanged);
     }
 
-    private void WaitForResponse(ChessOnline onlineGame)
+    private async Task WaitForResponse(ChessOnline onlineGame)
     {
-        onlineGame.serverResponedEvent.WaitOne();
         bool done = false;
 
         while (!done)
         {
+            onlineGame.serverResponedEvent.WaitOne();
             switch (onlineGame.serverResponse)
             {
                 case "welcome":
@@ -102,8 +107,15 @@
                     {
                         _ = ((ChessOnline)game).Disconnect();
                     }
-                    game = onlineGame;
-                    InvokeAsync(StateHasChanged);
+                    //game = onlineGame;
+                    if (gameChanged.HasDelegate)
+                    {
+                        await gameChanged.InvokeAsync(onlineGame);
+                    }
+                        
+
+                    //game = onlineGame;
+                    //SetGame(onlineGame);
                     done = true;
 
                     break;
@@ -122,6 +134,7 @@
 
                     break;
             }
+            InvokeAsync(StateHasChanged);
         }
     }
 }

@@ -9,6 +9,6 @@ namespace NetworkLibrary.Intefaces
     public interface IAccepter
     {
         Task<bool> StartAsync();
-        Task<IConnection> AcceptAsync();
+        Task<IConnection?> AcceptAsync();
     }
 }

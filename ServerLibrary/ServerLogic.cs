@@ -11,12 +11,13 @@ using NetworkLibrary.Connections;
 using NetworkLibrary.Intefaces;
 using NetworkLibrary.Accepters;
 using NetworkLibrary;
+using NetworkLibrary.Acceptors;
 
 namespace ServerLibrary
 {
     public class ServerLogic
     {
-        IAccepter accepter;
+        IAccepter socketAccepter, webSocketAccepter;
         ThreadSafeList<Player> unmatchedPlayers = new();
         List<Match> matches = new();
         ConcurrentQueue<Message> messageQueue = new();
@@ -24,15 +25,18 @@ namespace ServerLibrary
 
         public ServerLogic()
         {
-            accepter = new SocketAccepter();
+            socketAccepter = new SocketAccepter();
+            webSocketAccepter = new WebSocketAccepter();
         }
 
         public async Task StartAsync()
         {
-            if (await accepter.StartAsync() == true)
+            if (await socketAccepter.StartAsync() == true)
             {
-                _ = ListenForPlayersAsync(accepter);
+                _ = ListenForPlayersAsync(socketAccepter);
             }
+            await webSocketAccepter.StartAsync();
+            _ = ListenForPlayersAsync(webSocketAccepter);
 
             while (true)
             {
@@ -64,8 +68,12 @@ namespace ServerLibrary
         {
             while (true)
             {
-                Player newPlayer = new Player (await accepter.AcceptAsync());
-                _ = ListenForMessagesAsync(newPlayer);
+                IConnection? newConn = await accepter.AcceptAsync();
+                if (newConn is not null)
+                {
+                    Player newPlayer = new Player(newConn);
+                    _ = ListenForMessagesAsync(newPlayer);
+                }
             }
         }
 

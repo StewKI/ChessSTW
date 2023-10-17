@@ -36,10 +36,6 @@ body {
     margin: 0;
 }
 
-
-.centered-content {
-}
-
 .game-container {
     display: flex;
     justify-content: space-around;

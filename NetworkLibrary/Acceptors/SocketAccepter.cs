@@ -48,7 +48,7 @@ namespace NetworkLibrary.Accepters
             }
 
         }
-        public async Task<IConnection> AcceptAsync()
+        public async Task<IConnection?> AcceptAsync()
         {
             Socket newSocket = await listener!.AcceptAsync();
             return new SocketConnection(newSocket);

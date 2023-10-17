@@ -8,12 +8,13 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using ChessLibrary;
+using NetworkLibrary.Intefaces;
 
 namespace NetworkLibrary
 {
     public class ChessOnline : ChessLibrary.Chess
     {
-        private Socket? client;
+        private IConnection? connection;
         public CColor? myColor { get; private set; }
 
         public string username { get; private set; }
@@ -29,7 +30,7 @@ namespace NetworkLibrary
 
         public ChessOnline(Func<int> PromotePieceFunction, Action<ChessLibrary.Chess> UpdateFunction, Action<string> EndFunc, CColor? myColor, string username, string? opponUsername = null) : base(PromotePieceFunction)
         {
-            this.client = null;
+            this.connection = null;
             this.UpdateFunction = UpdateFunction;
             this.myColor = myColor;
             this.username = username;
@@ -38,7 +39,7 @@ namespace NetworkLibrary
             this.serverResponedEvent = new(false);
             this.EndFunc = EndFunc;
         }
-
+        /*
         ~ChessOnline()
         {
             if(Listening is not null)
@@ -46,56 +47,51 @@ namespace NetworkLibrary
                 Listening.Dispose();
             }
         }
-
+        
         private async Task SendMessageAsync(string message)
         {
-            byte[] messageBytes = Encoding.UTF8.GetBytes(message);
-            await client!.SendAsync(messageBytes);
+            await connection!.SendMessageAsync(message);
         }
-
+        */
         private string CColorToString(CColor? color)
         {
             if (color is null) return "Random";
             else return color.ToString()!;
         }
 
-        public async Task<bool> TryConnectAsync(string ipAdress, int port)
+        public void Connect(IConnection conn)
         {
-            try
-            {
-                IPAddress iPAddress = IPAddress.Parse(ipAdress);
-                IPEndPoint iPEndPoint = new IPEndPoint(iPAddress, port);
+            connection = conn;
+            //Introducing message
+            connection.SendMessageAsync($"introduce:{username}:{CColorToString(myColor)}:{opponUsername}");
 
-                client = new Socket(iPEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(iPEndPoint);
+            Listening = ListenForMessagesAsync(); //TODO implement destructors
 
-                //Introducing message
-                _ = SendMessageAsync($"introduce:{username}:{CColorToString(myColor)}:{opponUsername}");
-
-                Listening = ListenForMessagesAsync(client!); //TODO implement destructors
-
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
         }
 
         public async Task Disconnect()
         {
-            await SendMessageAsync("disconnect");
+            await connection!.SendMessageAsync("disconnect");
             Listening!.Dispose();
         }
 
-        private async Task ListenForMessagesAsync(Socket client)
+        private async Task ListenForMessagesAsync()
         {
+            await Console.Out.WriteLineAsync("Uso ikad"); //TODO: debug
             while (true)
             {
-                byte[] buffer = new byte[1024];
-                int received = await client.ReceiveAsync(buffer);
+                string message;
+                try
+                {
+                    message = await connection!.ReceiveMessageAsync();
+                }
+                catch (Exception e)
+                {
+                    await Console.Out.WriteLineAsync(e.Message);
+                    throw new Exception(e.Message);
+                }
 
-                string message = Encoding.UTF8.GetString(buffer, 0, received);
+                await Console.Out.WriteLineAsync($"risivovao poruku: {message}"); //TODO: debug
 
                 HandleMessage(message);
             }
@@ -127,22 +123,22 @@ namespace NetworkLibrary
 
                         myColor = messageInfo[1] == "White" ? CColor.White : CColor.Black;
                         opponUsername = messageInfo[2];
-                        serverResponedEvent.Set();
                         serverResponse = "welcome";
+                        serverResponedEvent.Set();
 
                         break;
 
                     case "waiting":
 
-                        serverResponedEvent.Set();
                         serverResponse = "waiting";
+                        serverResponedEvent.Set();
 
                         break;
 
                     case "username":
 
-                        serverResponedEvent.Set();
                         serverResponse = "username";
+                        serverResponedEvent.Set();
 
                         break;
 
@@ -163,7 +159,7 @@ namespace NetworkLibrary
 
                 if (succes)
                 {
-                    _ = SendMessageAsync($"move:{LastMove()}");
+                    _ = connection!.SendMessageAsync($"move:{LastMove()}");
                 }
 
                 return succes;

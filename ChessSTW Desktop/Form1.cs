@@ -1,9 +1,12 @@
 
 using System.Configuration;
+using System.Net.Sockets;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using ChessLibrary;
 using NetworkLibrary;
+using NetworkLibrary.Connections;
 
 namespace ChessSTW_Desktop
 {
@@ -300,16 +303,23 @@ namespace ChessSTW_Desktop
                 SetInfoText("Connecting...");
                 string IP = ConfigurationManager.AppSettings.Get("IP")!;
                 int Port = int.Parse(ConfigurationManager.AppSettings.Get("Port")!);
-                if (await onlineGame.TryConnectAsync(IP, Port))
+
+
+                IPAddress iPAddress = IPAddress.Parse(IP);
+                IPEndPoint iPEndPoint = new IPEndPoint(iPAddress, Port);
+
+                Socket client = new Socket(iPEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                
+                try
                 {
+                    await client.ConnectAsync(iPEndPoint);
+                    onlineGame.Connect(new SocketConnection(client));
                     SetInfoText("Connected. Waiting for response...");
-
                     _ = Task.Run(() => WaitForResponse(onlineGame));
-
                 }
-                else
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Connecting was not succesfull!", "OOPS!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show($"Connecting was not succesfull because: {ex.Message}", "OOPS!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     SetTLPEnabled(table, true);
                     SetInfoText("Offline game");
                 }
@@ -378,5 +388,9 @@ namespace ChessSTW_Desktop
             UpdateButtons(game);
         }
 
+        private void infoLabel_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

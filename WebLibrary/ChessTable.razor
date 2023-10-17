@@ -22,9 +22,12 @@
     private const int Columns = 8;
 
     [Parameter]
-    public Chess game { get; set; }
+    public Chess? game { get; set; }
     [Parameter]
     public string FieldSize { get; set; }
+
+    [Parameter]
+    public EventCallback<Chess> gameChanged { get; set; }
 
 
     string ClassFieldColor(int i, int j)
