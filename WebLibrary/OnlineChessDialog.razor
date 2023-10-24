@@ -39,7 +39,7 @@
     [Parameter]
     public Chess? game { get; set; }
     [Parameter]
-    public string url { get; set; }
+    public string? url { get; set; }
 
     [Parameter]
     public EventCallback<Chess> gameChanged { get; set; }
@@ -49,6 +49,7 @@
     private string[] valueOptions = { "Random", "White", "Black" };
 
     private string TextInfo = "Local game";
+    private bool done = false;
 
     private async Task ProcessInput()
     {
@@ -65,7 +66,9 @@
                 color = CColor.Black;
                 break;
         }
-        ChessOnline onlineGame = new ChessOnline(() => 0 /*TODO PROMOTE*/, (Chess chess) => InvokeAsync(StateHasChanged), (string a) => { }, color, username, "");
+        ChessOnline onlineGame = new ChessOnline(() => 0 /*TODO PROMOTE*/, color, username, "");
+
+        onlineGame.UpdateEvent += (object? o, Chess c) => InvokeAsync(StateHasChanged);
 
         TextInfo = "Connecting...";
 
@@ -77,8 +80,12 @@
             {
                 await client.ConnectAsync(serverUri, CancellationToken.None);
                 onlineGame.Connect(new WebSocketConnection(client));
+                onlineGame.ServerResponseEvent +=
+                    (object? o, string serverResponse) =>
+                    {
+                        HandleResponse(onlineGame, serverResponse);
+                    };
                 TextInfo = "Connected. Waiting for response...";
-                _ = WaitForResponse(onlineGame);
             }
             catch (Exception)
             {
@@ -89,14 +96,12 @@
         InvokeAsync(StateHasChanged);
     }
 
-    private async Task WaitForResponse(ChessOnline onlineGame)
-    {
-        bool done = false;
 
-        while (!done)
+    private void HandleResponse(ChessOnline onlineGame, string serverResponse)
+    {
+        if (!done)
         {
-            onlineGame.serverResponedEvent.WaitOne();
-            switch (onlineGame.serverResponse)
+            switch (serverResponse)
             {
                 case "welcome":
 
@@ -110,7 +115,7 @@
                     //game = onlineGame;
                     if (gameChanged.HasDelegate)
                     {
-                        await gameChanged.InvokeAsync(onlineGame);
+                        gameChanged.InvokeAsync(onlineGame);
                     }
                         
 
@@ -138,3 +143,8 @@
         }
     }
 }
+
+
+<style>
+
+</style>

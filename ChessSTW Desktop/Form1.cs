@@ -15,6 +15,7 @@ namespace ChessSTW_Desktop
         private Chess game;
         private Button[,] btns;
         private bool rotateTable;
+        private bool done = false;
 
         public Form1()
         {
@@ -298,7 +299,10 @@ namespace ChessSTW_Desktop
                 SetTLPEnabled(table, false);
 
                 CColor? color = dialog.Color == 2 ? null : (CColor)(dialog.Color);
-                ChessOnline onlineGame = new ChessOnline(PromotePiece, UpdateButtons, End, color, dialog.Username, dialog.OpponUsername);
+                ChessOnline onlineGame = new ChessOnline(PromotePiece, color, dialog.Username, dialog.OpponUsername);
+
+                onlineGame.UpdateEvent += (object? o, Chess game) => UpdateButtons(game);
+                onlineGame.EndGameEvent += (object? o, string reason) => End(reason);
 
                 SetInfoText("Connecting...");
                 string IP = ConfigurationManager.AppSettings.Get("IP")!;
@@ -308,14 +312,18 @@ namespace ChessSTW_Desktop
                 IPAddress iPAddress = IPAddress.Parse(IP);
                 IPEndPoint iPEndPoint = new IPEndPoint(iPAddress, Port);
 
-                Socket client = new Socket(iPEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                Socket socket = new Socket(iPEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 
                 try
                 {
-                    await client.ConnectAsync(iPEndPoint);
-                    onlineGame.Connect(new SocketConnection(client));
+                    await socket.ConnectAsync(iPEndPoint);
+                    onlineGame.Connect(new SocketConnection(socket));
+                    onlineGame.ServerResponseEvent += 
+                        (object? o, string serverResponse) =>
+                        {
+                            HandleResponse(onlineGame, serverResponse);
+                        };
                     SetInfoText("Connected. Waiting for response...");
-                    _ = Task.Run(() => WaitForResponse(onlineGame));
                 }
                 catch (Exception ex)
                 {
@@ -337,14 +345,11 @@ namespace ChessSTW_Desktop
             SetInfoText("Offline game");
         }
 
-        private void WaitForResponse(ChessOnline onlineGame)
+        private void HandleResponse(ChessOnline onlineGame, string serverResponse)
         {
-            onlineGame.serverResponedEvent.WaitOne();
-            bool done = false;
-
-            while (!done)
-            {
-                switch (onlineGame.serverResponse)
+            if(!done)
+            { 
+                switch (serverResponse)
                 {
                     case "welcome":
 

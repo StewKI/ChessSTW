@@ -20,24 +20,29 @@ namespace NetworkLibrary
         public string username { get; private set; }
         public string? opponUsername { get; private set; }
 
-        public AutoResetEvent serverResponedEvent { get; private set; }
-        public string serverResponse { get; private set; }
+        //public AutoResetEvent serverResponedEvent { get; private set; }
+        //public string serverResponse { get; private set; }
 
-        private Action<ChessLibrary.Chess> UpdateFunction;
-        private Action<string> EndFunc;
+        //private Action<ChessLibrary.Chess> UpdateFunction;
+        //private Action<string> EndFunc;
+
+        public event EventHandler<string>? ServerResponseEvent;
+
+        public event EventHandler<Chess>? UpdateEvent;
+        public event EventHandler<string>? EndGameEvent;
 
         private Task? Listening;
 
-        public ChessOnline(Func<int> PromotePieceFunction, Action<ChessLibrary.Chess> UpdateFunction, Action<string> EndFunc, CColor? myColor, string username, string? opponUsername = null) : base(PromotePieceFunction)
+        public ChessOnline(Func<int> PromotePieceFunction, CColor? myColor, string username, string? opponUsername = null) : base(PromotePieceFunction)
         {
             this.connection = null;
-            this.UpdateFunction = UpdateFunction;
+            //this.UpdateFunction = UpdateFunction;
             this.myColor = myColor;
             this.username = username;
             this.opponUsername = opponUsername;
-            this.serverResponse = "";
-            this.serverResponedEvent = new(false);
-            this.EndFunc = EndFunc;
+            //this.serverResponse = "";
+            //this.serverResponedEvent = new(false);
+            //this.EndFunc = EndFunc;
         }
         /*
         ~ChessOnline()
@@ -65,7 +70,7 @@ namespace NetworkLibrary
             //Introducing message
             connection.SendMessageAsync($"introduce:{username}:{CColorToString(myColor)}:{opponUsername}");
 
-            Listening = ListenForMessagesAsync(); //TODO implement destructors
+            Listening = ListenForMessagesAsync(); //TODO implement stopping this task
 
         }
 
@@ -110,7 +115,7 @@ namespace NetworkLibrary
                         if(move is not null)
                         {
                             MakeMove(move);
-                            UpdateFunction(this);
+                            UpdateEvent?.Invoke(this, this);
                         }
                         else
                         {
@@ -123,29 +128,25 @@ namespace NetworkLibrary
 
                         myColor = messageInfo[1] == "White" ? CColor.White : CColor.Black;
                         opponUsername = messageInfo[2];
-                        serverResponse = "welcome";
-                        serverResponedEvent.Set();
+                        ServerResponseEvent?.Invoke(this, "welcome");
+                        //serverResponse = "welcome";
+                        //serverResponedEvent.Set();
 
                         break;
 
                     case "waiting":
-
-                        serverResponse = "waiting";
-                        serverResponedEvent.Set();
-
-                        break;
-
                     case "username":
 
-                        serverResponse = "username";
-                        serverResponedEvent.Set();
+                        ServerResponseEvent?.Invoke(this, messageInfo[0]);
+                        //serverResponse = "waiting";
+                        //serverResponedEvent.Set();
 
                         break;
 
                     case "end": //format: "end:<reason>"
 
-                        EndFunc(messageInfo[1]);
-
+                        EndGameEvent?.Invoke(this, messageInfo[1]);
+                        
                         break;
                 }
             }
