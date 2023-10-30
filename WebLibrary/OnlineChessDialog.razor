@@ -1,7 +1,8 @@
 ﻿@using ChessLibrary;
 @using NetworkLibrary;
 @using NetworkLibrary.Connections;
-@using System.Net.WebSockets;
+@using System.Net.Sockets;
+@using System.Net;
 
 <div>
     <h1>@TextInfo</h1>
@@ -9,8 +10,12 @@
     <h2>Start new online game:</h2>
     <form>
         <div class="form-group">
-            <label for="url">URL:</label>
-            <input type="text" id="url" @bind="url" class="form-control" />
+            <label for="ip">IP:</label>
+            <input type="text" id="ip" @bind="ip" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="port">Port:</label>
+            <input type="text" id="port" @bind="port" class="form-control" />
         </div>
         <div class="form-group">
             <label for="username">Username:</label>
@@ -39,7 +44,9 @@
     [Parameter]
     public Chess? game { get; set; }
     [Parameter]
-    public string? url { get; set; }
+    public string? ip { get; set; }
+    [Parameter]
+    public string? port { get; set; }
 
     [Parameter]
     public EventCallback<Chess> gameChanged { get; set; }
@@ -72,14 +79,18 @@
 
         TextInfo = "Connecting...";
 
-        using (ClientWebSocket client = new ClientWebSocket())
-        {
-            Uri serverUri = new Uri(url); //   "ws://localhost:6970"
+        IPAddress iPAddress = IPAddress.Parse(ip!); //TODO: Check if ip null
+        IPEndPoint iPEndPoint = new IPEndPoint(iPAddress, int.Parse(port!));
 
+        
+        
+
+        using (Socket client = new Socket(iPEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+        {
             try
             {
-                await client.ConnectAsync(serverUri, CancellationToken.None);
-                onlineGame.Connect(new WebSocketConnection(client));
+                await client.ConnectAsync(iPEndPoint);
+                onlineGame.Connect(new SocketConnection(client));
                 onlineGame.ServerResponseEvent +=
                     (object? o, string serverResponse) =>
                     {

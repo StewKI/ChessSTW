@@ -36,6 +36,7 @@ namespace ServerLibrary
         public void Connect(IConnection connection)
         {
             this.connection = connection;
+            isConnected = true;
             ConnectEvenet.Set();
         }
 
@@ -91,8 +92,9 @@ namespace ServerLibrary
                 await SendMessageAsync("check");
                 return true && additionalTest;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                await Console.Out.WriteLineAsync($"Checked sending failed: {e.Message}");
                 return false;
             }
         }

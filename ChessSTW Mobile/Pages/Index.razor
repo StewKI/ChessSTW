@@ -1,14 +1,18 @@
 ﻿@page "/"
 @using ChessLibrary;
-@inject Chess chess;
 
-<div>
+<div class="game-container">
 
-	<WebLibrary.ChessTable game="@chess" FieldSize="10.6vw"/>
-	<WebLibrary.OnlineChessDialog game="@chess" ipValue="192.168.8.197" portValue="6969" />
+	<WebLibrary.ChessTable @bind-game="chessGame" FieldSize="10.6vw"/>
+	<WebLibrary.OnlineChessDialog @bind-game="chessGame" url="http://localhost:6970/" />
 
 </div>
 
 @code {
 	public Chess chessGame = new Chess(() => 0);
+
+	public async Task GameUpdated()
+	{
+		await InvokeAsync(StateHasChanged);
+	}
 }

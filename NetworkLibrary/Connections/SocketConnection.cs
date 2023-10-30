@@ -19,18 +19,33 @@ namespace NetworkLibrary.Connections
 
         public async Task<string> ReceiveMessageAsync()
         {
-            byte[] buffer = new byte[1024];
-            int recieved = await socket.ReceiveAsync(buffer);
+            string message = "";
+            try
+            {
+                byte[] buffer = new byte[1024];
+                int recieved = await socket.ReceiveAsync(buffer);
 
-            string message = Encoding.UTF8.GetString(buffer, 0, recieved);
+                message = Encoding.UTF8.GetString(buffer, 0, recieved);
+            }
+            catch(Exception e)
+            {
+                await Console.Out.WriteLineAsync($"Receive message error: {e.Message}");
+            }
             
             return message;
         }
 
         public async Task SendMessageAsync(string message)
         {
-            byte[] messageBytes = Encoding.UTF8.GetBytes(message);
-            await socket.SendAsync(messageBytes);
+            try
+            {
+                byte[] messageBytes = Encoding.UTF8.GetBytes(message);
+                await socket.SendAsync(messageBytes);
+            }
+            catch(Exception e)
+            {
+                await Console.Out.WriteLineAsync($"Send message error: {e.Message}");
+            }
         }
 
         bool IConnection.ConnectionTest()
